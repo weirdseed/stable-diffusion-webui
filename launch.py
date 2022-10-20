@@ -11,6 +11,28 @@ python = sys.executable
 git = os.environ.get('GIT', "git")
 index_url = os.environ.get('INDEX_URL', "")
 
+res = os.popen("conda env list",'r').read()
+if "ldm" not in res:
+    os.system("conda env create -f environment.yaml")
+    res = os.popen("conda env list",'r').read()
+    if "ldm" in res:
+        os.system("conda deactivate")
+        os.system("conda activate ldm")
+    else:
+        print("environment not exists!")
+        exit(0)
+
+if not os.path.exists("/home/featurize/data/"): os.system("mkdir /home/featurize/data/")
+
+if len(os.listdir("/home/featurize/data/")) == 0:
+    os.system("featurize dataset download bd3b3900-c351-49d8-833b-f7941a707b92")
+
+if not os.path.exists("/home/featurize/data/Codeformer/codeformer-v0.1.0.pth"):
+    os.system("wget https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth")
+    if os.path.exists("codeformer.pth"): os.system("mv codeformer.pth /home/featurize/data/Codeformer/codeformer-v0.1.0.pth")
+    os.system("unset http_proxy")
+    os.system("unset https_proxy")
+    os.system("unset all_proxy")
 
 def extract_arg(args, name):
     return [x for x in args if x != name], name in args
